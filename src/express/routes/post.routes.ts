@@ -242,7 +242,7 @@ router.post('/', authMiddleware, wrapController(postController.create));
  *         schema:
  *           type: string
  *         required: true
- *         description: Id of the post to delete
+ *         description: Id of the post to update
  *     security:
  *       - bearerAuth: []
  *     requestBody:

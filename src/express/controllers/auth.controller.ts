@@ -65,10 +65,10 @@ export const logout = async (req: Request, res: Response) => {
   const refreshToken = authHeader && authHeader.split(' ')[1]; // Bearer <token>
   if (!refreshToken) throw new AuthenticationError();
 
-  jwt.verify(refreshToken, config.jwt.refreshSecret, async (err, user: { _id: string }) => {
-    if (err) throw new AuthenticationError();
-
+  try {
+    const user = jwt.verify(refreshToken, config.jwt.refreshSecret) as { _id: string };
     const userDb = await userService.getById(new Types.ObjectId(user._id));
+
     if (!userDb.refreshTokens || !userDb.refreshTokens.includes(refreshToken)) {
       await userService.resetRefreshTokens(user._id);
       throw new AuthenticationError();
@@ -76,7 +76,9 @@ export const logout = async (req: Request, res: Response) => {
       await userService.removeRefreshToken(user._id, refreshToken);
       return res.sendStatus(200);
     }
-  });
+  } catch (err) {
+    throw new AuthenticationError();
+  }
 };
 
 export const refresh = async (req: Request, res: Response) => {
@@ -85,10 +87,10 @@ export const refresh = async (req: Request, res: Response) => {
 
   if (!refreshToken) throw new AuthenticationError();
 
-  jwt.verify(refreshToken, config.jwt.refreshSecret, async (err, user: { _id: string }) => {
-    if (err) throw new AuthenticationError();
-
+  try {
+    const user = jwt.verify(refreshToken, config.jwt.refreshSecret) as { _id: string };
     const userDb = await userService.getById(new Types.ObjectId(user._id));
+
     if (!userDb.refreshTokens || !userDb.refreshTokens.includes(refreshToken)) {
       await userService.resetRefreshTokens(user._id);
       throw new AuthenticationError();
@@ -99,11 +101,13 @@ export const refresh = async (req: Request, res: Response) => {
     await userService.removeRefreshToken(user._id, refreshToken);
     await userService.addRefreshToken(user._id, newRefreshToken);
 
-    return res.status(200).send({
+    return res.send({
       accessToken: accessToken,
-      refreshToken: refreshToken,
+      refreshToken: newRefreshToken,
     });
-  });
+  } catch (err) {
+    throw new AuthenticationError();
+  }
 };
 
 export const loginWithGoogle = async (req: Request, res: Response) => {
@@ -127,7 +131,7 @@ export const loginWithGoogle = async (req: Request, res: Response) => {
     const refreshToken = jwt.sign({ _id: user._id }, config.jwt.refreshSecret);
     await userService.addRefreshToken(user._id.toString(), refreshToken);
 
-    res.status(200).send({ accessToken, refreshToken });
+    res.send({ accessToken, refreshToken });
   } catch (err) {
     res.status(500).send('Error while logging in with Google');
   }

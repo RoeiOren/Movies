@@ -18,8 +18,8 @@ export const findById = async (id: Types.ObjectId) => {
   return userModel.findById(id).lean();
 };
 
-export const update = async (email: string, updatedField: { nickname?: string; username?: string }) => {
-  return userModel.updateOne({ email }, updatedField, { upsert: true });
+export const update = async (email: string, updatedField: { username?: string; email?: string; password?: string }) => {
+  return userModel.updateOne({ email }, updatedField, { new: true });
 };
 
 export const findByUsername = async (username: string) => {

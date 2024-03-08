@@ -48,7 +48,7 @@ const initApp = async (): Promise<Express> => {
   app.use(logger('dev'));
 
   app.use('/auth', authRouter);
-  app.use('/user', userRouter);
+  app.use('/users', userRouter);
   app.use('/posts', postRouter);
 
   initializeSwagger(app);

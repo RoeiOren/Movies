@@ -8,7 +8,7 @@ export const findManyByUser = async (user: Types.ObjectId): Promise<IPostPopulat
 };
 
 export const update = async (id: string, updateFields: { content?: string }) => {
-  return postModel.updateOne({ _id: new Types.ObjectId(id) }, updateFields);
+  return postModel.updateOne({ _id: new Types.ObjectId(id) }, updateFields, { new: true });
 };
 
 export const remove = async (id: string) => {
