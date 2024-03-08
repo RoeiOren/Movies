@@ -1,6 +1,6 @@
 import env from 'dotenv';
 env.config();
-import express, { Express } from 'express';
+import express, { Express, static as staticExpress } from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import config from './config/env.config';
@@ -46,6 +46,7 @@ const initApp = async (): Promise<Express> => {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cors());
   app.use(logger('dev'));
+  app.use(staticExpress('public'));
 
   app.use('/auth', authRouter);
   app.use('/users', userRouter);
