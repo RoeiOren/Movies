@@ -41,6 +41,9 @@ const router = Router();
  *         username:
  *           type: string
  *           description: The user username
+ *         image:
+ *            type: file
+ *            description: The user profile image
  *       example:
  *         email: 'roei@gmail.com'
  *         password: '123456'
@@ -98,7 +101,7 @@ const router = Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             $ref: '#/components/schemas/User'
  *     responses:

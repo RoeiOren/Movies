@@ -1,4 +1,4 @@
-// import { handleSingleUploadFile } from './../../utils/uploadFile';
+import { uploadFileWithMulter } from '../../common/uploadFile';
 import { Request, Response } from 'express';
 import * as userService from '../services/user.service';
 import bcrypt from 'bcryptjs';
@@ -7,50 +7,58 @@ import IUser from '../../core/types/user';
 import { OAuth2Client } from 'google-auth-library';
 import config from '../../config/env.config';
 import { Types } from 'mongoose';
-import { AuthenticationError, ServiceError } from '../../core/Errors';
+import { AuthenticationError, BadRequestError, InternalError } from '../../core/Errors';
+import fs from 'fs';
 
 const client = new OAuth2Client();
 
 export const register = async (req: Request, res: Response) => {
-  // TODO: upload profile picture
+  let uploadResult: { file: Express.Multer.File; body: unknown } | undefined;
+
+  try {
+    uploadResult = await uploadFileWithMulter(req, res);
+  } catch (error) {
+    throw new InternalError(error.message);
+  }
+
   const { email, password, username } = req.body;
   if (!email || !password || !username) {
-    throw new ServiceError('missing one of the properties: email, password or username', 400);
+    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult?.file?.filename}`);
+    throw new BadRequestError('missing one of the properties: email, password or username');
   }
 
-  const userExists = (await userService.getByEmail(email)) ?? (await userService.getByUsername(username));
+  let userExists = await userService.getByEmail(email);
   if (userExists) {
-    throw new ServiceError('email already exists', 409);
+    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult?.file?.filename}`);
+    throw new BadRequestError('email already exists');
   }
 
-  // let uploadResult: { file: Express.Multer.File; body: unknown } | undefined;
-
-  // try {
-  //   uploadResult = await handleSingleUploadFile(req, res);
-  // } catch (e) {
-  //   return res.status(422).json({ errors: [e.message] });
-  // }
+  userExists = await userService.getByUsername(username);
+  if (userExists) {
+    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult?.file?.filename}`);
+    throw new BadRequestError('username already exists');
+  }
 
   const salt = await bcrypt.genSalt(10);
   const encryptedPassword = await bcrypt.hash(password, salt);
-  const user = await userService.create({ email, password: encryptedPassword, username }); //profileImage: uploadResult?.file?.filename });
+  const user = await userService.create({ email, password: encryptedPassword, username, profileImage: uploadResult?.file?.filename });
   res.send(user);
 };
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    throw new ServiceError('missing email or password', 400);
+    throw new BadRequestError('missing email or password');
   }
 
   const user: IUser | null = await userService.getByEmail(email);
   if (!user) {
-    throw new ServiceError('email or password are incorrect', 401);
+    throw new AuthenticationError('email or password are incorrect');
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    throw new ServiceError('email or password are incorrect', 401);
+    throw new AuthenticationError('email or password are incorrect');
   }
 
   const accessToken = jwt.sign({ _id: user._id }, config.jwt.secret, { expiresIn: config.jwt.expiration });
@@ -133,6 +141,6 @@ export const loginWithGoogle = async (req: Request, res: Response) => {
 
     res.send({ accessToken, refreshToken });
   } catch (err) {
-    res.status(500).send('Error while logging in with Google');
+    throw new InternalError('Error verifying google token');
   }
 };

@@ -38,7 +38,7 @@ export const addComment = async (postId: string, userId: Types.ObjectId, content
   return postRepository.addComment(postId, { user: userId, content, date: new Date() });
 };
 
-export const getById = async (id: string) => {
+export const getById = async (id: Types.ObjectId) => {
   return addIMDBRatingAndFixUser(await postRepository.findById(id));
 };
 

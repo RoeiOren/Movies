@@ -1,7 +1,7 @@
 import { wrapController } from './../../utils/wrapController';
 import { Router } from 'express';
 import * as userController from '../controllers/user.controller';
-import authMiddleware from '../../common/auth_middleware';
+import authMiddleware from '../../common/authMiddleware';
 
 const router = Router();
 
@@ -70,7 +70,7 @@ router.get('/me', authMiddleware, wrapController(userController.getMe));
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             $ref: '#/components/schemas/User'
  *     security:

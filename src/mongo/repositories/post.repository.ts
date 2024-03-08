@@ -19,8 +19,8 @@ export const addComment = async (postId: string, comment: IComment) => {
   return postModel.updateOne({ _id: new Types.ObjectId(postId) }, { $push: { comments: comment } });
 };
 
-export const findById = async (id: string): Promise<IPostPopulated> => {
-  return postModel.findById(new Types.ObjectId(id)).populate('user').populate('comments').sort({ date: -1 }).lean();
+export const findById = async (id: Types.ObjectId): Promise<IPostPopulated> => {
+  return postModel.findById(id).populate('user').populate('comments').sort({ date: -1 }).lean();
 };
 
 export const create = async (post: IPost) => {

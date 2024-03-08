@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import * as userService from '../services/user.service';
-// import { handleSingleUploadFile } from './../../utils/uploadFile';
-import { AuthRequest } from '../../common/auth_middleware';
-import { NotFoundError } from '../../core/Errors';
+import { uploadFileWithMulter } from '../../common/uploadFile';
+import { AuthRequest } from '../../common/authMiddleware';
+import { InternalError, NotFoundError } from '../../core/Errors';
+import fs from 'fs';
 
 export const getMe = async (req: AuthRequest, res: Response) => {
   const user = await userService.getById(req.user!._id);
@@ -11,20 +12,23 @@ export const getMe = async (req: AuthRequest, res: Response) => {
   res.send(user);
 };
 
-export const update = async (req: Request, res: Response) => {
-  // TODO: add image upload
-  //   let uploadResult: { file: Express.Multer.File; body: unknown };
+export const update = async (req: AuthRequest, res: Response) => {
+  let uploadResult: { file: Express.Multer.File; body: unknown };
 
-  //   try {
-  //     uploadResult = await handleSingleUploadFile(req, res);
-  //   } catch (e) {
-  //     res.status(422).json({ errors: [e.message] });
-  //     return;
-  //   }
+  try {
+    uploadResult = await uploadFileWithMulter(req, res);
+  } catch (e) {
+    throw new InternalError(e.message);
+    return;
+  }
 
-  //   req.body.profileImage = uploadResult.file?.filename;
+  const user = await userService.getById(req.user._id);
+  if (!user) {
+    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult.file.filename}`);
+    throw new NotFoundError();
+  }
 
-  await userService.update(req.params.id, req.body);
+  req.body.profileImage = uploadResult.file?.filename;
 
-  return res.status(200).send();
+  res.send(await userService.update(req.user._id, req.body));
 };

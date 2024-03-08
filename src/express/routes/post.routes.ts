@@ -1,7 +1,7 @@
 import { wrapController } from './../../utils/wrapController';
 import { Router } from 'express';
 import * as postController from '../controllers/post.controller';
-import authMiddleware from '../../common/auth_middleware';
+import authMiddleware from '../../common/authMiddleware';
 
 const router = Router();
 
@@ -105,6 +105,7 @@ const router = Router();
  *         - movieName
  *         - content
  *         - imdbId
+ *         - image
  *       properties:
  *         content:
  *           type: string
@@ -115,6 +116,9 @@ const router = Router();
  *         imdbId:
  *           type: string
  *           description: The imdb id of the movie
+ *         image:
+ *           type: file
+ *           description: The post image
  *       example:
  *         movieName: 'Inception'
  *         content: 'Loved this movie!'
@@ -248,7 +252,7 @@ router.post('/', authMiddleware, wrapController(postController.create));
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:

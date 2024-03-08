@@ -1,12 +1,15 @@
+import { uploadFileWithMulter } from '../../common/uploadFile';
 import { Response } from 'express';
 import * as postService from '../services/post.service';
-import { AuthRequest } from '../../common/auth_middleware';
-import { NotFoundError, forbiddenError } from '../../core/Errors';
+import { AuthRequest } from '../../common/authMiddleware';
+import { BadRequestError, InternalError, NotFoundError, forbiddenError } from '../../core/Errors';
+import fs from 'fs';
+import { Types } from 'mongoose';
 
 export const get = async (req: AuthRequest, res: Response) => {
   const { page, limit } = req.query;
   if (!+page || !+limit) {
-    return res.status(400).send('Missing page or limit');
+    throw new BadRequestError('Missing page or limit');
   }
 
   res.send(await postService.getByPagination(+page, +limit));
@@ -17,7 +20,7 @@ export const getMyPosts = async (req: AuthRequest, res: Response) => {
 };
 
 export const updateById = async (req: AuthRequest, res: Response) => {
-  const post = await postService.getById(req.params.id);
+  const post = await postService.getById(new Types.ObjectId(req.params.id));
   if (!post) {
     throw new NotFoundError('Post not found');
   }
@@ -30,36 +33,37 @@ export const updateById = async (req: AuthRequest, res: Response) => {
     throw new forbiddenError('You can only update the content');
   }
 
-  await postService.updateById(req.params.id, req.body);
-  res.send('OK');
+  res.send(await postService.updateById(req.params.id, req.body));
 };
 
 export const addComment = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   const { content } = req.body;
   if (!content) {
-    return res.status(400).send('Missing content');
+    throw new BadRequestError('Missing content');
   }
 
-  await postService.addComment(id, req.user._id, content);
-  res.send('OK');
+  res.send(await postService.addComment(id, req.user._id, content));
 };
 
 export const getById = async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    return res.status(400).send('Missing URL parameter: id');
-  }
-
-  res.send(await postService.getById(id));
+  res.send(await postService.getById(req.user!._id));
 };
 
 export const create = async (req: AuthRequest, res: Response) => {
-  // TODO: add image upload
+  let uploadResult: { file: Express.Multer.File; body: unknown } | undefined;
+
+  try {
+    uploadResult = await uploadFileWithMulter(req, res);
+  } catch (error) {
+    throw new InternalError(error.message);
+  }
+
   const { movieName, description, imdbId } = req.body;
 
   if (!movieName || !description || !imdbId) {
-    return res.status(400).send('Missing one of the properties: movieName, description, or imdbId');
+    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult?.file?.filename}`);
+    throw new BadRequestError('Missing one of the properties: movieName, description, or imdbId');
   }
 
   return res.send(
@@ -67,6 +71,7 @@ export const create = async (req: AuthRequest, res: Response) => {
       movieName: movieName,
       content: description,
       user: req.user!._id,
+      imageName: uploadResult?.file?.filename,
       imdbId,
       comments: [],
       date: new Date(),
@@ -75,15 +80,14 @@ export const create = async (req: AuthRequest, res: Response) => {
 };
 
 export const deleteById = async (req: AuthRequest, res: Response) => {
-  const post = await postService.getById(req.params.id);
+  const post = await postService.getById(new Types.ObjectId(req.params.id));
   if (!post) {
-    return res.status(404).send('Post not found');
+    throw new NotFoundError('Post not found');
   }
 
   if (post.user._id.toString !== req.user!._id.toString) {
-    return res.status(403).send('You are not the owner of this post');
+    throw new forbiddenError('You are not the owner of this post');
   }
 
-  await postService.deleteById(req.params.id);
-  res.send('OK');
+  res.send(await postService.deleteById(req.params.id));
 };

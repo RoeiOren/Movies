@@ -10,16 +10,16 @@ export const create = async (user: IUser) => {
   return userModel.create(user);
 };
 
-export const updatePassword = async (email: string, password: string) => {
-  return userModel.updateOne({ email }, { password }).lean();
+export const updatePassword = async (id: Types.ObjectId, password: string) => {
+  return userModel.updateOne({ _id: id }, { password }).lean();
 };
 
 export const findById = async (id: Types.ObjectId) => {
   return userModel.findById(id).lean();
 };
 
-export const update = async (email: string, updatedField: { username?: string; email?: string; password?: string }) => {
-  return userModel.updateOne({ email }, updatedField, { new: true });
+export const update = async (id: Types.ObjectId, updatedField: { username?: string; email?: string; password?: string }) => {
+  return userModel.updateOne({ _id: id }, updatedField, { new: true });
 };
 
 export const findByUsername = async (username: string) => {

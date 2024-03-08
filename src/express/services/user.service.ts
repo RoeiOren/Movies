@@ -1,7 +1,8 @@
 import { Types } from 'mongoose';
 import IUser from '../../core/types/user';
 import * as userRepository from '../../mongo/repositories/user.repository';
-import { ServiceError } from '../../core/Errors';
+import { BadRequestError } from '../../core/Errors';
+import fs from 'fs';
 
 export const getByEmail = async (email: string) => {
   return userRepository.findByEmail(email);
@@ -31,13 +32,22 @@ export const getById = async (id: Types.ObjectId) => {
   return userRepository.findById(id);
 };
 
-export const update = async (id: string, updatedField: Partial<IUser>) => {
+export const update = async (id: Types.ObjectId, updatedField: Partial<IUser>) => {
   if (updatedField.email && (await getByEmail(updatedField.email))) {
-    throw new ServiceError('Email already exists', 409);
+    throw new BadRequestError('Email already exists');
   }
 
   if (updatedField.username && (await getByUsername(updatedField.username))) {
-    throw new ServiceError('Username already exists', 409);
+    throw new BadRequestError('Username already exists');
+  }
+
+  const user = await userRepository.findById(id);
+  if (user.profileImage) {
+    try {
+      fs.unlinkSync(`public/images/${user.profileImage}`);
+    } catch (e) {
+      console.error('Error deleting file', e.message);
+    }
   }
 
   return userRepository.update(id, updatedField);
