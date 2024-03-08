@@ -34,7 +34,7 @@ const initializeSwagger = async (app: Express) => {
 
 const initApp = async (): Promise<Express> => {
   try {
-    await mongoose.connect(config.mongo.url);
+    await mongoose.connect(config.mongo.url, { dbName: config.mongo.dbName });
     console.log('Connected to MongoDB');
   } catch (err) {
     console.log('Error connecting to MongoDB', err.message);
