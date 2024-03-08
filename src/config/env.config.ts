@@ -1,6 +1,6 @@
 import env from 'env-var';
 
-export default {
+const config = {
   server: {
     port: env.get('PORT').required().asPortNumber(),
     https_port: env.get('HTTPS_PORT').required().asPortNumber(),
@@ -14,6 +14,10 @@ export default {
   jwt: {
     secret: env.get('JWT_SECRET').required().asString(),
     refreshSecret: env.get('JWT_REFRESH_SECRET').required().asString(),
-    expiration: env.get('JWT_EXPIRATION').required().asIntPositive(),
+    expiration: env.get('JWT_EXPIRATION').required().asString(),
   },
+  googleClientId: env.get('GOOGLE_CLIENT_ID').required().asString(),
+  imdbURL: env.get('IMDB_URL').required().asString(),
 };
+
+export default config;

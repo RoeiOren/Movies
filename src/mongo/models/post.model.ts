@@ -5,11 +5,23 @@ import { IPost } from '../../core/types/post';
 const postSchema = new mongoose.Schema<IPost>(
   {
     _id: { type: mongoose.Schema.Types.ObjectId, required: true, auto: true },
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: config.mongo.usersCollectionName, required: true },
-    title: { type: String, required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: config.mongo.usersCollectionName, required: true },
+    movieName: { type: String, required: true },
     content: { type: String, required: true },
-    imagePath: { type: String, required: true },
-    comments: { type: [mongoose.Schema.Types.ObjectId], ref: config.mongo.commentsCollectionName },
+    imageName: { type: String, required: true },
+    comments: {
+      type: [
+        {
+          user: { type: mongoose.Schema.Types.ObjectId, ref: config.mongo.usersCollectionName, required: true },
+          content: { type: String, required: true },
+          date: { type: Date, required: true },
+        },
+      ],
+      required: true,
+      default: [],
+    },
+    imdbId: { type: String, required: true },
+    date: { type: Date, required: true },
   },
   {
     versionKey: false,

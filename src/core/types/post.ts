@@ -3,19 +3,25 @@ import IComment from './comment';
 import IUser from './user';
 
 export interface IPost {
-  _id: Types.ObjectId;
-  owner: Types.ObjectId;
-  title: string;
+  _id?: Types.ObjectId;
+  user: Types.ObjectId;
+  movieName: string;
   content: string;
-  imagePath: string;
-  comments: Types.ObjectId[];
+  imageName?: string;
+  comments: IComment[];
+  imdbId: string;
+  imdbRating?: number;
+  date: Date;
 }
 
 export interface IPostPopulated {
   _id: string;
-  owner: IUser;
-  title: string;
+  user: IUser;
+  movieName: string;
   content: string;
-  imagePath: string;
+  imageName: string;
   comments: IComment[];
+  imdbId: string;
+  imdbRating?: number;
+  date: Date;
 }

@@ -6,8 +6,10 @@ const usersSchema = new mongoose.Schema<IUser>(
   {
     _id: { type: mongoose.Schema.Types.ObjectId, required: true, auto: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    profilePicturePath: { type: String, required: false },
+    password: { type: String, required: false },
+    username: { type: String, required: true, unique: true },
+    refreshTokens: { type: [String], required: false, default: [] },
+    profileImage: { type: String, required: false },
   },
   {
     versionKey: false,
