@@ -127,23 +127,10 @@ const router = Router();
 
 /**
  * @swagger
- * /posts?page={page}&limit={limit}:
+ * /posts:
  *   get:
  *     summary: get list of posts by pagination
  *     tags: [Posts]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *         description: The number of the page
- *         required: true
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *         required: true
- *         description: The number of posts per page
  *     responses:
  *       200:
  *         description: list of posts

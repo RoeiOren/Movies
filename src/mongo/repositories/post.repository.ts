@@ -3,6 +3,10 @@ import IComment from '../../core/types/comment';
 import { IPost, IPostPopulated } from '../../core/types/post';
 import postModel from '../models/post.model';
 
+export const getByQuery = async (query: object): Promise<IPostPopulated[]> => {
+  return postModel.find(query).populate('user').populate('comments').sort({ date: -1 }).lean();
+};
+
 export const findManyByUser = async (user: Types.ObjectId): Promise<IPostPopulated[]> => {
   return postModel.find({ user }).populate('user').populate('comments').sort({ date: -1 }).lean();
 };
@@ -25,17 +29,6 @@ export const findById = async (id: Types.ObjectId): Promise<IPostPopulated> => {
 
 export const create = async (post: IPost) => {
   return postModel.create(post);
-};
-
-export const getByPagination = async (query: object, page: number, limit: number): Promise<IPostPopulated[]> => {
-  return postModel
-    .find(query)
-    .populate('user')
-    .populate('comments')
-    .skip((page - 1) * limit)
-    .sort({ date: -1 })
-    .limit(limit)
-    .lean();
 };
 
 export const deleteOne = async (id: string) => {

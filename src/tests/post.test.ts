@@ -57,15 +57,10 @@ describe('Post tests', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  test('Test get posts by pagination', async () => {
-    const res = await request(app).get('/posts?page=1&limit=10');
+  test('Test get posts', async () => {
+    const res = await request(app).get('/posts');
     expect(res.statusCode).toBe(200);
     expect(res.body.length).toBe(1);
-  });
-
-  test('Test get posts by pagination missing field', async () => {
-    const res = await request(app).get('/posts?page=1');
-    expect(res.statusCode).toBe(400);
   });
 
   test('Test get my posts', async () => {

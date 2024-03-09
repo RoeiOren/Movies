@@ -6,13 +6,8 @@ import { BadRequestError, InternalError, NotFoundError, forbiddenError } from '.
 import fs from 'fs';
 import { Types } from 'mongoose';
 
-export const get = async (req: AuthRequest, res: Response) => {
-  const { page, limit } = req.query;
-  if (!+page || !+limit) {
-    throw new BadRequestError('Missing page or limit');
-  }
-
-  res.send(await postService.getByPagination(+page, +limit));
+export const get = async (_req: AuthRequest, res: Response) => {
+  res.send(await postService.get());
 };
 
 export const getMyPosts = async (req: AuthRequest, res: Response) => {

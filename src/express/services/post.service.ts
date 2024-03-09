@@ -15,8 +15,8 @@ const addIMDBRatingAndFixUser = async (post: IPostPopulated) => ({
   },
 });
 
-export const getByPagination = async (page: number, limit: number) => {
-  const posts = await postRepository.getByPagination({}, page, limit);
+export const get = async () => {
+  const posts = await postRepository.getByQuery({});
 
   const promisesResult = await Promise.allSettled(posts.map(addIMDBRatingAndFixUser));
 
