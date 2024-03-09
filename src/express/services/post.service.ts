@@ -12,6 +12,7 @@ const addIMDBRatingAndFixUser = async (post: IPostPopulated) => ({
     _id: post.user._id,
     email: post.user.email,
     username: post.user.username,
+    ...(post.user.profileImage ? { profileImage: post.user.profileImage } : {}),
   },
 });
 
