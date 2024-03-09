@@ -208,6 +208,6 @@ router.get('/refresh', wrapController(authController.refresh));
  *       401:
  *         description: email or password is incorrect
  */
-router.post('google-login', wrapController(authController.loginWithGoogle));
+router.post('/google-login', wrapController(authController.loginWithGoogle));
 
 export default router;
