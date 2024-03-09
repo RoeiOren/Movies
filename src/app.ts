@@ -42,13 +42,13 @@ const initApp = async (): Promise<Express> => {
   const app = express();
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(cors());
+  app.use(cors({ credentials: true, origin: "http://localhost:3001" }));
   app.use(logger('dev'));
   app.use(staticExpress('public'));
 
-  app.use('/auth', authRouter);
-  app.use('/users', userRouter);
-  app.use('/posts', postRouter);
+  app.use('/api/auth', authRouter);
+  app.use('/api/users', userRouter);
+  app.use('/api/posts', postRouter);
 
   initializeSwagger(app);
 
