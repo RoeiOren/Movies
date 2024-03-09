@@ -4,10 +4,12 @@ import * as postRepository from '../../mongo/repositories/post.repository';
 import config from '../../config/env.config';
 import axios from 'axios';
 import { NotFoundError } from '../../core/Errors';
+import { getById as getUserById } from './user.service';
+import IComment from '../../core/types/comment';
 
 const addIMDBRatingAndFixUser = async (post: IPostPopulated) => ({
   ...post,
-  imdbRating: (await axios.get(`${config.imdbURL}/?tt=${post.imdbId}`)).data.short.review.reviewRating.ratingValue.toString(),
+  imdbRating: (await axios.get(`${config.imdbURL}/?tt=${post.imdbId}`)).data?.short?.review?.reviewRating?.ratingValue?.toString(),
   user: {
     _id: post.user._id,
     email: post.user.email,
@@ -21,7 +23,7 @@ export const get = async () => {
 
   const promisesResult = await Promise.allSettled(posts.map(addIMDBRatingAndFixUser));
 
-  return promisesResult.map((promise) => (promise as { value: object }).value);
+  return promisesResult.filter((promise) => promise.status === 'fulfilled').map((promise) => (promise as { value: object }).value);
 };
 
 export const getMyPosts = async (userId: Types.ObjectId) => {
@@ -29,7 +31,7 @@ export const getMyPosts = async (userId: Types.ObjectId) => {
 
   const promisesResult = await Promise.allSettled(posts.map(addIMDBRatingAndFixUser));
 
-  return promisesResult.map((promise) => (promise as { value: object }).value);
+  return promisesResult.filter((promise) => promise.status === 'fulfilled').map((promise) => (promise as { value: object }).value);
 };
 
 export const updateById = (id: string, updateFields: { content?: string }) => {
@@ -43,7 +45,31 @@ export const addComment = async (postId: string, userId: Types.ObjectId, content
 export const getById = async (id: Types.ObjectId) => {
   const post = await postRepository.findById(id);
   if (!post) throw new NotFoundError('Post not found');
-  return addIMDBRatingAndFixUser(await postRepository.findById(id));
+
+  const populatedPost = await addIMDBRatingAndFixUser(await postRepository.findById(id));
+
+  const populatedComments = await Promise.allSettled(
+    populatedPost.comments.map(async (comment) => {
+      const user = await getUserById(comment.user as Types.ObjectId);
+      if (!user) throw new Error();
+
+      return {
+        ...comment,
+        user: {
+          _id: user._id,
+          email: user.email,
+          username: user.username,
+          ...(user.profileImage ? { profileImage: user.profileImage } : {}),
+        },
+      };
+    })
+  );
+
+  populatedPost.comments = populatedComments
+    .filter((promise) => promise.status === 'fulfilled')
+    .map((promise) => (promise as { value: IComment }).value);
+
+  return populatedPost;
 };
 
 export const create = async (newPost: IPost) => {
