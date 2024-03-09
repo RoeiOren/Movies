@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>19/25</span>
+                <span class='fraction'>18/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">27.27% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>3/11</span>
+                <span class='fraction'>3/6</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">78.94% </span>
+                <span class="strong">87.5% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>15/19</span>
+                <span class='fraction'>14/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -95,16 +95,7 @@
 <a name='L30'></a><a href='#L30'>30</a>
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a>
-<a name='L33'></a><a href='#L33'>33</a>
-<a name='L34'></a><a href='#L34'>34</a>
-<a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<a name='L33'></a><a href='#L33'>33</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -112,18 +103,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,7 +132,7 @@ import * as userService from '../services/user.service';
 import { uploadFileWithMulter } from '../../common/uploadFile';
 import { AuthRequest } from '../../common/authMiddleware';
 import { InternalError, NotFoundError } from '../../core/Errors';
-import fs from 'fs';
+// import fs from 'fs';
 &nbsp;
 export const getMe = async (req: AuthRequest, res: Response) =&gt; {
   const user = await userService.getById(req.user!._id);
@@ -146,19 +142,17 @@ export const getMe = async (req: AuthRequest, res: Response) =&gt; {
 };
 &nbsp;
 export const update = async (req: AuthRequest, res: Response) =&gt; {
+  const user = await userService.getById(req.user._id);
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!user) {
+    // if (uploadResult?.file) fs.unlinkSync(`public/images/${uploadResult.file.filename}`);
+<span class="cstat-no" title="statement not covered" >    throw new NotFoundError();</span>
+  }
   let uploadResult: { file: Express.Multer.File; body: unknown };
 &nbsp;
   try {
     uploadResult = await uploadFileWithMulter(req, res);
   } catch (e) {
 <span class="cstat-no" title="statement not covered" >    throw new InternalError(e.message);</span>
-<span class="cstat-no" title="statement not covered" >    return;</span>
-  }
-&nbsp;
-  const user = await userService.getById(req.user._id);
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (!user) {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (uploadResult?.file) <span class="cstat-no" title="statement not covered" >fs.unlinkSync(`public/images/${uploadResult.file.filename}`);</span></span>
-<span class="cstat-no" title="statement not covered" >    throw new NotFoundError();</span>
   }
 &nbsp;
   req.body.profileImage = uploadResult.file<span class="branch-1 cbranch-no" title="branch not covered" >?.filename;</span>
@@ -172,7 +166,7 @@ export const update = async (req: AuthRequest, res: Response) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-03-09T10:32:11.496Z
+                at 2024-03-09T16:17:02.255Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -24,9 +24,19 @@ export const updateById = async (req: AuthRequest, res: Response) => {
     throw new forbiddenError('You are not the owner of this post');
   }
 
+  let uploadResult: { file: Express.Multer.File; body: unknown } | undefined;
+
+  try {
+    uploadResult = await uploadFileWithMulter(req, res);
+  } catch (error) {
+    throw new InternalError(error.message);
+  }
+
   if (Object.keys(req.body).length > 1 || !req.body.content) {
     throw new forbiddenError('You can only update the content');
   }
+
+  req.body.imageName = uploadResult.file?.filename;
 
   res.send(await postService.updateById(req.params.id, req.body));
 };

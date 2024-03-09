@@ -19,8 +19,8 @@ beforeAll(async () => {
   console.log('beforeAll');
   await userModel.deleteMany({});
 
-  await request(app).post('/auth/register').send(user);
-  const response = await request(app).post('/auth/login').send(user);
+  await request(app).post('/api/auth/register').send(user);
+  const response = await request(app).post('/api/auth/login').send(user);
   accessToken = response.body.accessToken;
 });
 
@@ -30,19 +30,19 @@ afterAll(async () => {
 
 describe('Users tests', () => {
   test('Test get my user', async () => {
-    const res = await request(app).get('/users/me').set('Authorization', `Bearer ${accessToken}`);
+    const res = await request(app).get('/api/users/me').set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.email).toBe(user.email);
     expect(res.body.username).toBe(user.username);
   });
 
   test('Test get my user invalid authorization', async () => {
-    const res = await request(app).get('/users/me').set('Authorization', `Bearer 1${accessToken}`);
+    const res = await request(app).get('/api/users/me').set('Authorization', `Bearer 1${accessToken}`);
     expect(res.statusCode).toBe(401);
   });
 
   test('Test update user', async () => {
-    const res = await request(app).patch('/users').set('Authorization', `Bearer ${accessToken}`).send({ username: 'newUsername' });
+    const res = await request(app).patch('/api/users').set('Authorization', `Bearer ${accessToken}`).send({ username: 'newUsername' });
     expect(res.statusCode).toBe(200);
     expect(res.body.username).toBe('newUsername');
   });

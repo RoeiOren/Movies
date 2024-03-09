@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.66% </span>
+                <span class="strong">85.24% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>52/60</span>
+                <span class='fraction'>52/61</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">62.5% </span>
+                <span class="strong">60% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>15/24</span>
+                <span class='fraction'>15/25</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">84.44% </span>
+                <span class="strong">82.6% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>38/45</span>
+                <span class='fraction'>38/46</span>
             </div>
         
             
@@ -156,22 +156,18 @@
 <a name='L91'></a><a href='#L91'>91</a>
 <a name='L92'></a><a href='#L92'>92</a>
 <a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -179,7 +175,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -188,8 +200,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -257,13 +267,8 @@ import { BadRequestError, InternalError, NotFoundError, forbiddenError } from '.
 import fs from 'fs';
 import { Types } from 'mongoose';
 &nbsp;
-export const get = async (req: AuthRequest, res: Response) =&gt; {
-  const { page, limit } = req.query;
-  if (!+page || !+limit) {
-    throw new BadRequestError('Missing page or limit');
-  }
-&nbsp;
-  res.send(await postService.getByPagination(+page, +limit));
+export const get = async (_req: AuthRequest, res: Response) =&gt; {
+  res.send(await postService.get());
 };
 &nbsp;
 export const getMyPosts = async (req: AuthRequest, res: Response) =&gt; {
@@ -280,9 +285,19 @@ export const updateById = async (req: AuthRequest, res: Response) =&gt; {
 <span class="cstat-no" title="statement not covered" >    throw new forbiddenError('You are not the owner of this post');</span>
   }
 &nbsp;
+  let uploadResult: { file: Express.Multer.File; body: unknown } | undefined;
+&nbsp;
+  try {
+    uploadResult = await uploadFileWithMulter(req, res);
+  } catch (error) {
+<span class="cstat-no" title="statement not covered" >    throw new InternalError(error.message);</span>
+  }
+&nbsp;
   <span class="missing-if-branch" title="if path not taken" >I</span>if (Object.keys(req.body).length &gt; 1 || !req.body.content) {
 <span class="cstat-no" title="statement not covered" >    throw new forbiddenError('You can only update the content');</span>
   }
+&nbsp;
+  req.body.imageName = uploadResult.file<span class="branch-1 cbranch-no" title="branch not covered" >?.filename;</span>
 &nbsp;
   res.send(await postService.updateById(req.params.id, req.body));
 };
@@ -349,7 +364,7 @@ export const deleteById = async (req: AuthRequest, res: Response) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-03-09T10:32:11.496Z
+                at 2024-03-09T16:17:02.255Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
