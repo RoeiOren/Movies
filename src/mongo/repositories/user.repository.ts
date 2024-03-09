@@ -11,7 +11,7 @@ export const create = async (user: IUser) => {
 };
 
 export const updatePassword = async (id: Types.ObjectId, password: string) => {
-  return userModel.updateOne({ _id: id }, { password }).lean();
+  return userModel.findOneAndUpdate({ _id: id }, { password }).lean();
 };
 
 export const findById = async (id: Types.ObjectId) => {
@@ -19,7 +19,7 @@ export const findById = async (id: Types.ObjectId) => {
 };
 
 export const update = async (id: Types.ObjectId, updatedField: { username?: string; email?: string; password?: string }) => {
-  return userModel.updateOne({ _id: id }, updatedField, { new: true });
+  return userModel.findOneAndUpdate({ _id: id }, updatedField, { new: true });
 };
 
 export const findByUsername = async (username: string) => {
@@ -27,12 +27,12 @@ export const findByUsername = async (username: string) => {
 };
 
 export const addRefreshToken = async (id: string, refreshToken: string) => {
-  return userModel.updateOne({ _id: new Types.ObjectId(id) }, { $push: { refreshTokens: refreshToken } });
+  return userModel.findOneAndUpdate({ _id: new Types.ObjectId(id) }, { $push: { refreshTokens: refreshToken } });
 };
 
 export const resetRefreshTokens = async (id: string) => {
-  return userModel.updateOne({ _id: new Types.ObjectId(id) }, { refreshTokens: [] });
+  return userModel.findOneAndUpdate({ _id: new Types.ObjectId(id) }, { refreshTokens: [] });
 };
 export const removeRefreshToken = async (id: string, refreshToken: string) => {
-  return userModel.updateOne({ _id: new Types.ObjectId(id) }, { $pull: { refreshTokens: refreshToken } });
+  return userModel.findOneAndUpdate({ _id: new Types.ObjectId(id) }, { $pull: { refreshTokens: refreshToken } }, { new: true });
 };

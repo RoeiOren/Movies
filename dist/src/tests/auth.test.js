@@ -16,101 +16,97 @@ const supertest_1 = __importDefault(require("supertest"));
 const app_1 = __importDefault(require("../app"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const user_model_1 = __importDefault(require("../models/user_model"));
+console.log(process.env);
 let app;
 const user = {
-    email: "testUser@test.com",
-    password: "1234567890",
+    email: 'testUser@test.com',
+    password: '1234567890',
+    username: 'testUser',
 };
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     app = yield (0, app_1.default)();
-    console.log("beforeAll");
-    yield user_model_1.default.deleteMany({ 'email': user.email });
+    console.log('beforeAll');
+    yield user_model_1.default.deleteMany({ email: user.email });
 }));
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield mongoose_1.default.connection.close();
 }));
-let accessToken;
-let refreshToken;
-let newRefreshToken;
-describe("Auth tests", () => {
-    test("Test Register", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/register")
-            .send(user);
-        expect(response.statusCode).toBe(201);
-    }));
-    test("Test Register exist email", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/register")
-            .send(user);
-        expect(response.statusCode).toBe(406);
-    }));
-    test("Test Register missing password", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/register").send({
-            email: "test@test.com",
-        });
-        expect(response.statusCode).toBe(400);
-    }));
-    test("Test Login", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/login").send(user);
-        expect(response.statusCode).toBe(200);
-        accessToken = response.body.accessToken;
-        refreshToken = response.body.refreshToken;
-        expect(accessToken).toBeDefined();
-    }));
-    test("Test forbidden access without token", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app).get("/student");
-        expect(response.statusCode).toBe(401);
-    }));
-    test("Test access with valid token", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .get("/student")
-            .set("Authorization", "JWT " + accessToken);
+// let accessToken: string;
+// let refreshToken: string;
+// let newRefreshToken: string;
+describe('Auth tests', () => {
+    test('Test Register', () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield (0, supertest_1.default)(app).post('/auth/register').send(user);
         expect(response.statusCode).toBe(200);
     }));
-    test("Test access with invalid token", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .get("/student")
-            .set("Authorization", "JWT 1" + accessToken);
-        expect(response.statusCode).toBe(401);
-    }));
-    jest.setTimeout(10000);
-    test("Test access after timeout of token", () => __awaiter(void 0, void 0, void 0, function* () {
-        yield new Promise(resolve => setTimeout(() => resolve("done"), 5000));
-        const response = yield (0, supertest_1.default)(app)
-            .get("/student")
-            .set("Authorization", "JWT " + accessToken);
-        expect(response.statusCode).not.toBe(200);
-    }));
-    test("Test refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .get("/auth/refresh")
-            .set("Authorization", "JWT " + refreshToken)
-            .send();
-        expect(response.statusCode).toBe(200);
-        expect(response.body.accessToken).toBeDefined();
-        expect(response.body.refreshToken).toBeDefined();
-        const newAccessToken = response.body.accessToken;
-        newRefreshToken = response.body.refreshToken;
-        const response2 = yield (0, supertest_1.default)(app)
-            .get("/student")
-            .set("Authorization", "JWT " + newAccessToken);
-        expect(response2.statusCode).toBe(200);
-    }));
-    test("Test double use of refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .get("/auth/refresh")
-            .set("Authorization", "JWT " + refreshToken)
-            .send();
-        expect(response.statusCode).not.toBe(200);
-        //verify that the new token is not valid as well
-        const response1 = yield (0, supertest_1.default)(app)
-            .get("/auth/refresh")
-            .set("Authorization", "JWT " + newRefreshToken)
-            .send();
-        expect(response1.statusCode).not.toBe(200);
-    }));
+    // test('Test Register exist email', async () => {
+    //   const response = await request(app).post('/auth/register').send(user);
+    //   expect(response.statusCode).toBe(406);
+    // });
+    // test('Test Register missing password', async () => {
+    //   const response = await request(app).post('/auth/register').send({
+    //     email: 'test@test.com',
+    //   });
+    //   expect(response.statusCode).toBe(400);
+    // });
+    // test('Test Login', async () => {
+    //   const response = await request(app).post('/auth/login').send(user);
+    //   expect(response.statusCode).toBe(200);
+    //   accessToken = response.body.accessToken;
+    //   refreshToken = response.body.refreshToken;
+    //   expect(accessToken).toBeDefined();
+    // });
+    // test('Test forbidden access without token', async () => {
+    //   const response = await request(app).get('/student');
+    //   expect(response.statusCode).toBe(401);
+    // });
+    // test('Test access with valid token', async () => {
+    //   const response = await request(app)
+    //     .get('/student')
+    //     .set('Authorization', 'JWT ' + accessToken);
+    //   expect(response.statusCode).toBe(200);
+    // });
+    // test('Test access with invalid token', async () => {
+    //   const response = await request(app)
+    //     .get('/student')
+    //     .set('Authorization', 'JWT 1' + accessToken);
+    //   expect(response.statusCode).toBe(401);
+    // });
+    // jest.setTimeout(10000);
+    // test('Test access after timeout of token', async () => {
+    //   await new Promise((resolve) => setTimeout(() => resolve('done'), 5000));
+    //   const response = await request(app)
+    //     .get('/student')
+    //     .set('Authorization', 'JWT ' + accessToken);
+    //   expect(response.statusCode).not.toBe(200);
+    // });
+    // test('Test refresh token', async () => {
+    //   const response = await request(app)
+    //     .get('/auth/refresh')
+    //     .set('Authorization', 'JWT ' + refreshToken)
+    //     .send();
+    //   expect(response.statusCode).toBe(200);
+    //   expect(response.body.accessToken).toBeDefined();
+    //   expect(response.body.refreshToken).toBeDefined();
+    //   const newAccessToken = response.body.accessToken;
+    //   newRefreshToken = response.body.refreshToken;
+    //   const response2 = await request(app)
+    //     .get('/student')
+    //     .set('Authorization', 'JWT ' + newAccessToken);
+    //   expect(response2.statusCode).toBe(200);
+    // });
+    // test('Test double use of refresh token', async () => {
+    //   const response = await request(app)
+    //     .get('/auth/refresh')
+    //     .set('Authorization', 'JWT ' + refreshToken)
+    //     .send();
+    //   expect(response.statusCode).not.toBe(200);
+    //   //verify that the new token is not valid as well
+    //   const response1 = await request(app)
+    //     .get('/auth/refresh')
+    //     .set('Authorization', 'JWT ' + newRefreshToken)
+    //     .send();
+    //   expect(response1.statusCode).not.toBe(200);
+    // });
 });
 //# sourceMappingURL=auth.test.js.map

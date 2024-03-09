@@ -47,7 +47,7 @@ export const addComment = async (req: AuthRequest, res: Response) => {
 };
 
 export const getById = async (req: AuthRequest, res: Response) => {
-  res.send(await postService.getById(req.user!._id));
+  res.send(await postService.getById(new Types.ObjectId(req.params.id)));
 };
 
 export const create = async (req: AuthRequest, res: Response) => {
@@ -59,19 +59,19 @@ export const create = async (req: AuthRequest, res: Response) => {
     throw new InternalError(error.message);
   }
 
-  const { movieName, description, imdbId } = req.body;
+  const { movieName, content, imdbId } = req.body;
 
-  if (!movieName || !description || !imdbId) {
-    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult?.file?.filename}`);
-    throw new BadRequestError('Missing one of the properties: movieName, description, or imdbId');
+  if (!movieName || !content || !imdbId) {
+    if (uploadResult?.file) fs.unlinkSync(`public/images/${uploadResult.file.filename}`);
+    throw new BadRequestError('Missing one of the properties: movieName, content, or imdbId');
   }
 
   return res.send(
     await postService.create({
       movieName: movieName,
-      content: description,
+      content,
       user: req.user!._id,
-      imageName: uploadResult?.file?.filename,
+      imageName: uploadResult.file?.filename,
       imdbId,
       comments: [],
       date: new Date(),

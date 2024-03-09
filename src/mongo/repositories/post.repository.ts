@@ -8,7 +8,7 @@ export const findManyByUser = async (user: Types.ObjectId): Promise<IPostPopulat
 };
 
 export const update = async (id: string, updateFields: { content?: string }) => {
-  return postModel.updateOne({ _id: new Types.ObjectId(id) }, updateFields, { new: true });
+  return postModel.findOneAndUpdate({ _id: new Types.ObjectId(id) }, updateFields, { new: true });
 };
 
 export const remove = async (id: string) => {
@@ -16,11 +16,11 @@ export const remove = async (id: string) => {
 };
 
 export const addComment = async (postId: string, comment: IComment) => {
-  return postModel.updateOne({ _id: new Types.ObjectId(postId) }, { $push: { comments: comment } });
+  return postModel.findOneAndUpdate({ _id: new Types.ObjectId(postId) }, { $push: { comments: comment } }, { new: true });
 };
 
 export const findById = async (id: Types.ObjectId): Promise<IPostPopulated> => {
-  return postModel.findById(id).populate('user').populate('comments').sort({ date: -1 }).lean();
+  return postModel.findById(id).populate('user').populate('comments').lean();
 };
 
 export const create = async (post: IPost) => {

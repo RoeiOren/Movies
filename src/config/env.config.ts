@@ -1,4 +1,6 @@
 import env from 'env-var';
+import dotenv from 'dotenv';
+dotenv.config({ path: process.env.NODE_ENV?.toString() == 'test' ? 'test.env' : '.env' });
 
 const config = {
   server: {
@@ -10,7 +12,6 @@ const config = {
     dbName: env.get('MONGO_DB_NAME').required().asString(),
     usersCollectionName: env.get('MONGO_USERS_COLLECTION_NAME').required().asString(),
     postsCollectionName: env.get('MONGO_POSTS_COLLECTION_NAME').required().asString(),
-    commentsCollectionName: env.get('MONGO_COMMENTS_COLLECTION_NAME').required().asString(),
   },
   jwt: {
     secret: env.get('JWT_SECRET').required().asString(),

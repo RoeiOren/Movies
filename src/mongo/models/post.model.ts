@@ -8,7 +8,7 @@ const postSchema = new mongoose.Schema<IPost>(
     user: { type: mongoose.Schema.Types.ObjectId, ref: config.mongo.usersCollectionName, required: true },
     movieName: { type: String, required: true },
     content: { type: String, required: true },
-    imageName: { type: String, required: true },
+    imageName: { type: String, required: false },
     comments: {
       type: [
         {

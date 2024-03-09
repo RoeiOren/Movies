@@ -3,6 +3,7 @@ import { IPost, IPostPopulated } from '../../core/types/post';
 import * as postRepository from '../../mongo/repositories/post.repository';
 import config from '../../config/env.config';
 import axios from 'axios';
+import { NotFoundError } from '../../core/Errors';
 
 const addIMDBRatingAndFixUser = async (post: IPostPopulated) => ({
   ...post,
@@ -39,6 +40,8 @@ export const addComment = async (postId: string, userId: Types.ObjectId, content
 };
 
 export const getById = async (id: Types.ObjectId) => {
+  const post = await postRepository.findById(id);
+  if (!post) throw new NotFoundError('Post not found');
   return addIMDBRatingAndFixUser(await postRepository.findById(id));
 };
 

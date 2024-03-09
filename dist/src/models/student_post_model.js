@@ -18,5 +18,5 @@ const studentPostSchema = new mongoose_1.default.Schema({
         required: true,
     },
 });
-exports.default = mongoose_1.default.model("StudentPost", studentPostSchema);
+exports.default = mongoose_1.default.model('StudentPost', studentPostSchema);
 //# sourceMappingURL=student_post_model.js.map

@@ -24,7 +24,7 @@ export const update = async (req: AuthRequest, res: Response) => {
 
   const user = await userService.getById(req.user._id);
   if (!user) {
-    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult.file.filename}`);
+    if (uploadResult?.file) fs.unlinkSync(`public/images/${uploadResult.file.filename}`);
     throw new NotFoundError();
   }
 

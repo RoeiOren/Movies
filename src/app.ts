@@ -1,5 +1,3 @@
-import env from 'dotenv';
-env.config();
 import express, { Express, static as staticExpress } from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';

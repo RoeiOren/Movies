@@ -23,25 +23,25 @@ export const register = async (req: Request, res: Response) => {
 
   const { email, password, username } = req.body;
   if (!email || !password || !username) {
-    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult?.file?.filename}`);
+    if (uploadResult?.file) fs.unlinkSync(`public/images/${uploadResult.file.filename}`);
     throw new BadRequestError('missing one of the properties: email, password or username');
   }
 
   let userExists = await userService.getByEmail(email);
   if (userExists) {
-    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult?.file?.filename}`);
+    if (uploadResult?.file) fs.unlinkSync(`public/images/${uploadResult.file.filename}`);
     throw new BadRequestError('email already exists');
   }
 
   userExists = await userService.getByUsername(username);
   if (userExists) {
-    if (uploadResult) fs.unlinkSync(`public/images/${uploadResult?.file?.filename}`);
+    if (uploadResult?.file) fs.unlinkSync(`public/images/${uploadResult.file.filename}`);
     throw new BadRequestError('username already exists');
   }
 
   const salt = await bcrypt.genSalt(10);
   const encryptedPassword = await bcrypt.hash(password, salt);
-  const user = await userService.create({ email, password: encryptedPassword, username, profileImage: uploadResult?.file?.filename });
+  const user = await userService.create({ email, password: encryptedPassword, username, profileImage: uploadResult.file?.filename });
   res.send(user);
 };
 
@@ -81,8 +81,7 @@ export const logout = async (req: Request, res: Response) => {
       await userService.resetRefreshTokens(user._id);
       throw new AuthenticationError();
     } else {
-      await userService.removeRefreshToken(user._id, refreshToken);
-      return res.sendStatus(200);
+      res.send(await userService.removeRefreshToken(user._id, refreshToken));
     }
   } catch (err) {
     throw new AuthenticationError();
