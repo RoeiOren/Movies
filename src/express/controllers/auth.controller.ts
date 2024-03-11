@@ -131,7 +131,7 @@ export const loginWithGoogle = async (req: Request, res: Response) => {
     let user: IUser | null = await userService.getByEmail(payload?.email);
 
     if (!user) {
-      user = await userService.create({ email: payload?.email, username: payload?.name });
+      user = await userService.create({ email: payload?.email, username: payload?.name, imageUrl: payload?.picture });
     }
 
     const accessToken = jwt.sign({ _id: user._id }, config.jwt.secret, { expiresIn: config.jwt.expiration });

@@ -7,14 +7,23 @@ import { NotFoundError } from '../../core/Errors';
 import { getById as getUserById } from './user.service';
 import IComment from '../../core/types/comment';
 
+const getImdbRating = async (imdbId: string) => {
+  try {
+    return (await axios.get(`${config.imdbURL}/?tt=${imdbId}`)).data?.short?.aggregateRating?.ratingValue?.toString();
+  } catch (error) {
+    return null;
+  }
+};
+
 const addIMDBRatingAndFixUser = async (post: IPostPopulated) => ({
   ...post,
-  imdbRating: (await axios.get(`${config.imdbURL}/?tt=${post.imdbId}`)).data?.short?.review?.reviewRating?.ratingValue?.toString(),
+  imdbRating: await getImdbRating(post.imdbId),
   user: {
     _id: post.user._id,
     email: post.user.email,
     username: post.user.username,
     ...(post.user.profileImage ? { profileImage: post.user.profileImage } : {}),
+    ...(post.user.imageUrl ? { imageUrl: post.user.imageUrl } : {}),
   },
 });
 
@@ -60,6 +69,7 @@ export const getById = async (id: Types.ObjectId) => {
           email: user.email,
           username: user.username,
           ...(user.profileImage ? { profileImage: user.profileImage } : {}),
+          ...(user.imageUrl ? { imageUrl: user.imageUrl } : {}),
         },
       };
     })

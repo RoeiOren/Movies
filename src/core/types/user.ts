@@ -7,4 +7,5 @@ export default interface IUser {
   username?: string;
   refreshTokens?: string[];
   profileImage?: string;
+  imageUrl?: string;
 }
