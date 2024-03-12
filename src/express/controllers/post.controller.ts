@@ -32,7 +32,7 @@ export const updateById = async (req: AuthRequest, res: Response) => {
     throw new InternalError(error.message);
   }
 
-  if (Object.keys(req.body).length > 1 || !req.body.content) {
+  if (Object.keys(req.body).length > 0 && !req.body.content) {
     throw new forbiddenError('You can only update the content');
   }
 
