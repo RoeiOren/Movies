@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import multer from 'multer';
 import { ServiceError } from '../core/Errors';
 
-const uploadFilePath = path.resolve(__dirname, '../../public/images');
+const uploadFilePath = 'public/images';
 
 const storage: multer.StorageEngine = multer.diskStorage({
   destination: uploadFilePath,
