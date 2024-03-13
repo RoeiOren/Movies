@@ -9,3 +9,6 @@ dist/
 test.env
 
 coverage/
+
+#certs
+certs/

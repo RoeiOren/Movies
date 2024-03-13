@@ -42,7 +42,7 @@ const initApp = async (): Promise<Express> => {
   const app = express();
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
+  app.use(cors({ credentials: true, origin: ['https://node63.cs.colman.ac.il:80', 'https://10.10.248.223:80'] }));
   app.use(logger('dev'));
   app.use(staticExpress('public'));
 
